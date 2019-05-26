@@ -14,7 +14,6 @@ import (
 
 type App struct {
 	Port int
-	ClusterPort int
 	Nodes []string
 }
 
@@ -24,12 +23,12 @@ func (a *App) Start() error {
 	logrus.Infof("Initial cluster Nodes: %v", a.Nodes)
 
 	opts := &server.Options{
-		Port: a.Port,
+		Port: -1, // Random port for client connections
 		Host: "localhost",
 		//Debug: true,
 		//Trace: true,
 		Cluster: server.ClusterOpts{
-			Port: a.ClusterPort,
+			Port: a.Port,
 			Host: "localhost",
 			Advertise: "localhost",
 			ConnectRetries: 10,
@@ -47,11 +46,15 @@ func (a *App) Start() error {
 		return errors.New("server did not start in time")
 	}
 
-	//logrus.Infof("Number routes: %d", s.NumRoutes())
 
-	url := fmt.Sprintf("nats://localhost:%d", a.Port)
 	subj := fmt.Sprintf("client-%d", a.Port)
 
+	ports := s.PortsInfo(1 * time.Second)
+	if len(ports.Nats) < 1 {
+		return errors.New("no NATS server address returned")
+	}
+
+	url := ports.Nats[0]
 	copts := []nats.Option{
 		nats.Name(subj),
 	}

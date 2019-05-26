@@ -14,3 +14,4 @@ srv-host=_nats._tcp.nats.local,localhost,9191
 Run `run.sh <0-9>` to start services. Argument changes last digit of the port to allow synchronization (yes hacky but whatever).
 Each service starts publishing to the queue every 5 seconds with its port in the message (for readability) and timestamp.
 
+Client port is randomized (as each service only connects to itself) while cluster one is specified via `-p` flag.

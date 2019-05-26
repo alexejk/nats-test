@@ -13,14 +13,12 @@ import (
 
 type rootOps struct{
 	port *int
-	clusterPort *int
 }
 
 func RootCmd() *cobra.Command {
 
 	o := &rootOps{
 		port: new(int),
-		clusterPort: new(int),
 	}
 
 	cmd := &cobra.Command{
@@ -29,7 +27,6 @@ func RootCmd() *cobra.Command {
 	}
 
 	cmd.Flags().IntVarP(o.port, "port", "p", -1, "port to start on")
-	cmd.Flags().IntVarP(o.clusterPort, "cluster-port", "c", -1, "cluster port to start on")
 
 	cmd.SilenceUsage = true
 
@@ -42,16 +39,10 @@ func (o *rootOps) runE (cmd *cobra.Command, args []string) error {
 		return errors.New("port cannot be empty or below 0")
 	}
 
-	if o.clusterPort == nil || *o.clusterPort <= 0 {
-		return errors.New("cluster port cannot be empty or below 0")
-	}
-
 	servers := o.lookupClusterNodes()
-
 
 	a := &app.App{
 		Port: *o.port,
-		ClusterPort: *o.clusterPort,
 		Nodes: servers,
 	}
 
